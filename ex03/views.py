@@ -1,6 +1,8 @@
 from django.shortcuts import render
 from django.http import HttpResponse
+from django.db import *
 import psycopg2 as p
+from .models import Movies
 
 def init(request):
     command = """ \
@@ -34,11 +36,7 @@ CREATE TABLE IF NOT EXISTS public.ex03_movies
             conn.close()
             
 def populate(request):
-    sql = "INSERT INTO public.ex03_movies(episode_nb, title, director, producer, release_date) VALUES (%s, %s, %s, %s, %s);"
-    # connect to the PostgreSQL server
-    conn = p.connect(host="localhost", database="djangoformation", user="djangouser", password="secret")
     try:
-        cur = conn.cursor()
         value_list = [      
              (1, 'The Phantom Menace', 'George Lucas', 'Rick McCallum', '1999-05-19'),
              (2, 'Attack of the Clones', 'George Lucas', 'Rick McCallum', '2002-05-16'),
@@ -51,25 +49,24 @@ def populate(request):
         ok = ''
         for record in value_list:
             try:
-                cur.execute(sql, record)
+                old = Movies.objects.get(pk=record[0])
+                ok = ok + 'Record (' + record[1] + '):' + "already exists" + "<br />"
+            except (Movies.DoesNotExist) as error:
+                m = Movies(episode_nb=record[0], title=record[1], director=record[2], producer=record[3], release_date=record[4] )
+                m.save()
                 ok = ok + ' OK<br />'
-            except (p.DatabaseError) as error:
+            except (Exception, p.DatabaseError) as error:
                 ok = ok + 'Error on title(' + record[1] + '):' + str(error.pgcode) + ':' + str(error.pgerror) + "<br />"
-
-        # close communication with the PostgreSQL database server
-        cur.close()
-        # commit the changes
-        conn.commit()
         return HttpResponse(ok)
     except (Exception, p.DatabaseError) as error:
         print(error)
         return HttpResponse("ERROR")
-    finally:
-        if conn is not None:
-            conn.close()
             
 def display(request):
-    for m in Movies.objects.raw('SELECT * FROM public.ex03_movies'):
-        print(m)
-        
-    return render(request, 'display.html', {})
+        movies =  Movies.objects.all()
+ #       print("movies: {}".format(movies))
+        # print("longueur: {}".format(response.len))
+        records = []
+        for movie in movies:
+            records.append((movie.episode_nb, movie.title, movie.opening_crawl, movie.director, movie.producer, movie.release_date ))
+        return render(request, "display.html", {'records' : records })

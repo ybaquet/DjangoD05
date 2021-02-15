@@ -31,16 +31,16 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'ex00.apps.Ex00Config',
-    'ex01.apps.Ex01Config',
-    'ex02.apps.Ex02Config',
-    'ex03.apps.Ex03Config',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'ex00.apps.Ex00Config',
+    'ex01.apps.Ex01Config',
+    'ex02.apps.Ex02Config',
+    'ex03.apps.Ex03Config',
 ]
 
 MIDDLEWARE = [
@@ -58,7 +58,7 @@ ROOT_URLCONF = 'DjangoD05.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
